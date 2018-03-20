@@ -251,7 +251,7 @@ public class CubeVisitService extends CubeVisitProtos.CubeVisitService implement
             KylinConfig kylinConfig = KylinConfig.createKylinConfig(request.getKylinProperties());
             KylinConfig.setKylinConfigThreadLocal(kylinConfig);
 
-            debugGitTag = region.getTableDesc().getValue(IRealizationConstants.HTableGitTag);
+            debugGitTag = region.getTableDescriptor().getValue(IRealizationConstants.HTableGitTag);
 
             final GTScanRequest scanReq = GTScanRequest.serializer
                     .deserialize(ByteBuffer.wrap(HBaseZeroCopyByteString.zeroCopyGetBytes(request.getGtScanRequest())));

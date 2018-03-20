@@ -28,14 +28,16 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.cube.CubeInstance;
 import org.apache.kylin.cube.CubeManager;
 import org.apache.kylin.cube.CubeSegment;
 import org.apache.kylin.metadata.realization.IRealizationConstants;
+import org.apache.kylin.storage.hbase.HBaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +46,17 @@ public class StorageCleanJobHbaseUtil {
     protected static final Logger logger = LoggerFactory.getLogger(StorageCleanJobHbaseUtil.class);
 
     public static void cleanUnusedHBaseTables(boolean delete, int deleteTimeout) throws IOException {
-        try (HBaseAdmin hbaseAdmin = new HBaseAdmin(HBaseConfiguration.create())) {
+        KylinConfig kylinConfig = KylinConfig.getInstanceFromEnv();
+        Connection connection = HBaseConnection.get(kylinConfig.getStorageUrl());
+        try (Admin hbaseAdmin = connection.getAdmin()) {
             cleanUnusedHBaseTables(hbaseAdmin, delete, deleteTimeout);
         }
     }
 
-    static void cleanUnusedHBaseTables(HBaseAdmin hbaseAdmin, boolean delete, int deleteTimeout) throws IOException {
+    static void cleanUnusedHBaseTables(Admin hbaseAdmin, boolean delete, int deleteTimeout) throws IOException {
         KylinConfig kylinConfig = KylinConfig.getInstanceFromEnv();
         CubeManager cubeMgr = CubeManager.getInstance(kylinConfig);
+
         // get all kylin hbase tables
         try {
             String namespace = kylinConfig.getHBaseStorageNameSpace();
@@ -108,12 +113,12 @@ public class StorageCleanJobHbaseUtil {
     }
 
     static class DeleteHTableRunnable implements Callable {
-        HBaseAdmin hbaseAdmin;
-        String htableName;
+        Admin hbaseAdmin;
+        TableName htableName;
 
-        DeleteHTableRunnable(HBaseAdmin hbaseAdmin, String htableName) {
+        DeleteHTableRunnable(Admin hbaseAdmin, String htableName) {
             this.hbaseAdmin = hbaseAdmin;
-            this.htableName = htableName;
+            this.htableName = TableName.valueOf(htableName);
         }
 
         public Object call() throws Exception {

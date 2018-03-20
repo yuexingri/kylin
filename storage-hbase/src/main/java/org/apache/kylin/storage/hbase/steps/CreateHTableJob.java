@@ -314,7 +314,7 @@ public class CreateHTableJob extends AbstractHadoopJob {
 
         for (int i = 0; i < splits.size(); i++) {
             //when we compare the rowkey, we compare the row firstly.
-            hfilePartitionWriter.append(new RowKeyWritable(KeyValue.createFirstOnRow(splits.get(i)).createKeyOnly(false).getKey()), NullWritable.get());
+            hfilePartitionWriter.append(new RowKeyWritable(new KeyValue(splits.get(i), (byte[])null, (byte[])null, Long.MAX_VALUE, KeyValue.Type.Maximum).createKeyOnly(false).getKey()), NullWritable.get());
         }
         hfilePartitionWriter.close();
     }
