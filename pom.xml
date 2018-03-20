@@ -47,15 +47,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Hadoop versions -->
-        <hadoop2.version>3.0.0-alpha2</hadoop2.version>
-        <yarn.version>3.0.0-alpha2</yarn.version>
+        <hadoop2.version>3.0.0</hadoop2.version>
+        <yarn.version>3.0.0</yarn.version>
 
         <!-- Hive versions -->
         <hive.version>2.1.0</hive.version>
         <hive-hcatalog.version>2.1.0</hive-hcatalog.version>
 
         <!-- HBase versions -->
-        <hbase-hadoop2.version>2.0.0-SNAPSHOT</hbase-hadoop2.version>
+        <hbase-hadoop2.version>2.0.0-beta-2</hbase-hadoop2.version>
 
         <!-- Kafka versions -->
         <kafka.version>0.11.0.1</kafka.version>
@@ -64,7 +64,7 @@
         <spark.version>2.1.2</spark.version>
         <kryo.version>4.0.0</kryo.version>
 
-        <commons-configuration.version>1.6</commons-configuration.version>
+        <commons-configuration.version>1.10</commons-configuration.version>
         <!-- <reflections.version>0.9.10</reflections.version> -->
 
         <!-- Calcite Version -->
@@ -521,7 +521,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-mapreduce</artifactId>
+                <version>${hbase-hadoop2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
+                <version>${hbase-hadoop2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-zookeeper</artifactId>
                 <version>${hbase-hadoop2.version}</version>
             </dependency>
             <dependency>
@@ -854,6 +864,12 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
                 <version>${jetty.version}</version>
                 <scope>test</scope>
             </dependency>

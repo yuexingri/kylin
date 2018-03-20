@@ -31,12 +31,15 @@ import java.util.concurrent.TimeoutException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.cube.CubeInstance;
 import org.apache.kylin.cube.CubeManager;
 import org.apache.kylin.cube.CubeSegment;
 import org.apache.kylin.metadata.realization.IRealizationConstants;
+import org.apache.kylin.storage.hbase.HBaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +51,10 @@ public class StorageCleanJobHbaseUtil {
         Configuration conf = HBaseConfiguration.create();
         KylinConfig kylinConfig = KylinConfig.getInstanceFromEnv();
         CubeManager cubeMgr = CubeManager.getInstance(kylinConfig);
+        Connection conn = HBaseConnection.get(kylinConfig.getStorageUrl());
+
         // get all kylin hbase tables
-        try (HBaseAdmin hbaseAdmin = new HBaseAdmin(conf)) {
+        try (Admin hbaseAdmin = conn.getAdmin()) {
             String namespace = kylinConfig.getHBaseStorageNameSpace();
             String tableNamePrefix = (namespace.equals("default") || namespace.equals(""))
                     ? kylinConfig.getHBaseTableNamePrefix() : (namespace + ":" + kylinConfig.getHBaseTableNamePrefix());
@@ -104,12 +109,12 @@ public class StorageCleanJobHbaseUtil {
     }
 
     static class DeleteHTableRunnable implements Callable {
-        HBaseAdmin hbaseAdmin;
-        String htableName;
+        Admin hbaseAdmin;
+        TableName htableName;
 
-        DeleteHTableRunnable(HBaseAdmin hbaseAdmin, String htableName) {
+        DeleteHTableRunnable(Admin hbaseAdmin, String htableName) {
             this.hbaseAdmin = hbaseAdmin;
-            this.htableName = htableName;
+            this.htableName = TableName.valueOf(htableName);
         }
 
         public Object call() throws Exception {

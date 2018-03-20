@@ -26,13 +26,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
@@ -95,14 +95,13 @@ public class CubeHFileJob extends AbstractHadoopJob {
             attachCubeMetadata(cube, job.getConfiguration());
 
             Configuration hbaseConf = HBaseConfiguration.create(getConf());
-            HTable htable = new HTable(hbaseConf, getOptionValue(OPTION_HTABLE_NAME));
 
             String hTableName = getOptionValue(OPTION_HTABLE_NAME).toUpperCase();
             connection = ConnectionFactory.createConnection(hbaseConf);
             Table table = connection.getTable(TableName.valueOf(hTableName));
             RegionLocator regionLocator = connection.getRegionLocator(TableName.valueOf(hTableName));
             // Automatic config !
-            HFileOutputFormat3.configureIncrementalLoad(job, htable);
+            HFileOutputFormat2.configureIncrementalLoad(job, table.getDescriptor(), regionLocator);
             reconfigurePartitions(hbaseConf, partitionFilePath);
 
             job.setInputFormatClass(SequenceFileInputFormat.class);
